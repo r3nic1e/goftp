@@ -8,10 +8,10 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io"
 	"net"
 	"sync"
 	"time"
+	"log"
 )
 
 // Error is an expanded error interface returned by all Client methods.
@@ -121,7 +121,7 @@ type Config struct {
 
 	// Logging destination for debugging messages. Set to os.Stderr to log to stderr.
 	// Password value will not be logged.
-	Logger io.Writer
+	Logger *log.Logger
 
 	// Time zone of the FTP server. Used when parsing mtime from "LIST" output if
 	// server does not support "MLST"/"MLSD". Defaults to UTC.
@@ -224,12 +224,7 @@ func (c *Client) Close() error {
 // Log a debug message in the context of the client (i.e. not for a
 // particular connection).
 func (c *Client) debug(f string, args ...interface{}) {
-	if c.config.Logger == nil {
-		return
-	}
-
-	fmt.Fprintf(c.config.Logger, "goftp: %.3f %s\n",
-		time.Now().Sub(c.t0).Seconds(),
+	c.config.Logger.Print(
 		fmt.Sprintf(f, args...),
 	)
 }
